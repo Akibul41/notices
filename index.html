@@ -9,58 +9,33 @@
 </head>
 <body>
     <div class="notice-container" id="noticeContainer">
-   
         <!-- Notices will be dynamically inserted here -->
     </div>
 
     <script>
-        // Function to fetch and display the notices from the JSON file
-        function fetchNotices() {
-            // Add a timestamp to the URL to avoid cache issues
-            const jsonUrl = '/notices.json?t=' + new Date().getTime();
+        // Fetch the JSON file containing notices
+        fetch('notices.json')
+            .then(response => response.json())
+            .then(data => {
+                const notices = data.notices;
+                const noticeContainer = document.getElementById('noticeContainer');
 
-            // Fetch the JSON file
-            fetch(jsonUrl)
-                .then(response => response.json())  // Parse JSON response
-                .then(data => {
-                    // Get the notice container element
-                    const noticeContainer = document.getElementById('notice-container');
-                    noticeContainer.innerHTML = ''; // Clear the container before adding new notices
-
-                    // Loop through each notice and create a box for it
-                    data.notices.forEach(notice => {
-                        // Create a new div for each notice
-                        const noticeBox = document.createElement('div');
-                        noticeBox.classList.add('notice-box');
-
-                        // If the notice is new, add the "new" badge
-                        if (notice.isNew) {
-                            const newBadge = document.createElement('div');
-                            newBadge.classList.add('new-badge');
-                            newBadge.innerText = 'NEW';
-                            noticeBox.appendChild(newBadge);
-                        }
-
-                        // Add the notice title and description to the box
-                        const title = document.createElement('h3');
-                        title.innerText = notice.title;
-                        noticeBox.appendChild(title);
-
-                        const description = document.createElement('p');
-                        description.innerText = notice.description;
-                        noticeBox.appendChild(description);
-
-                        // Append the notice box to the container
-                        noticeContainer.appendChild(noticeBox);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching notices:', error);
+                // Loop through the notices and create HTML for each notice
+                notices.forEach(notice => {
+                    const noticeDiv = document.createElement('div');
+                    noticeDiv.classList.add('notice');
+                    noticeDiv.innerHTML = `
+                        <a href="${notice.link}">
+                            ${notice.title}
+                            ${notice.isNew ? '<span class="new">NEW</span>' : ''}
+                        </a>
+                    `;
+                    noticeContainer.appendChild(noticeDiv);
                 });
-        }
-
-        // Call the fetchNotices function when the page loads
-        window.onload = fetchNotices;
+            })
+            .catch(error => {
+                console.error("Error loading the notices:", error);
+            });
     </script>
 </body>
 </html>
